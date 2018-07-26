@@ -1,7 +1,7 @@
 {
-  "name": "iview",
+  "name": "yp-iview",
   "version": "2.6.0",
-  "title": "iView",
+  "title": "YP-iView",
   "description": "A high quality  UI components Library with Vue.js",
   "homepage": "http://www.iviewui.com",
   "keywords": [
@@ -32,12 +32,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/iview/iview"
+    "url": "https://github.com/Hedgehogking/iview"
   },
-  "author": "Aresn",
+  "author": "Hedgehog",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/iview/iview/issues"
+    "url": "https://github.com/Hedgehogking/iview/issues"
   },
   "dependencies": {
     "async-validator": "^1.8.1",
