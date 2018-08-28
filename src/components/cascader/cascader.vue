@@ -35,6 +35,7 @@
                         :data="data"
                         :disabled="disabled"
                         :change-on-select="changeOnSelect"
+                        :level="level"
                         :trigger="trigger"></Caspanel>
                     <div :class="[prefixCls + '-dropdown']" v-show="filterable && query !== '' && querySelections.length">
                         <ul :class="[selectPrefixCls + '-dropdown-list']">
@@ -148,7 +149,8 @@
                 currentValue: this.value,
                 query: '',
                 validDataStr: '',
-                isLoadedChildren: false    // #950
+                isLoadedChildren: false,    // #950
+                level: 1, // 用于loadData里面传出当前层级
             };
         },
         computed: {

@@ -9,7 +9,7 @@
                 :tmp-item="tmpItem"
                 @click.native.stop="handleClickItem(item)"
                 @mouseenter.native.stop="handleHoverItem(item)"></Casitem>
-        </ul><Caspanel v-if="sublist && sublist.length" :prefix-cls="prefixCls" :data="sublist" :disabled="disabled" :trigger="trigger" :change-on-select="changeOnSelect"></Caspanel>
+        </ul><Caspanel v-if="sublist && sublist.length" :prefix-cls="prefixCls" :data="sublist" :disabled="disabled" :trigger="trigger" :change-on-select="changeOnSelect" :level="level + 1"></Caspanel>
     </span>
 </template>
 <script>
@@ -33,7 +33,8 @@
             disabled: Boolean,
             changeOnSelect: Boolean,
             trigger: String,
-            prefixCls: String
+            prefixCls: String,
+            level: Number,
         },
         data () {
             return {
@@ -70,7 +71,7 @@
                             if (item.children.length) {
                                 this.handleTriggerItem(item);
                             }
-                        });
+                        }, this.level);
                         return;
                     }
                 }
