@@ -55,8 +55,9 @@
                 // second Level or more
                 tempObj = tempObj.fields[key];
             } else {
+                tempObj = [];
                 // throw new Error('[iView warn]: please transfer a valid prop path to form item!');
-                console.warn('[iView warn]: please transfer a valid prop path to form item!');
+                console.warn(`[iView warn]: please transfer a valid prop path to form item! \r\n=> ${keyArr.join('.')}`);
             }
         }
         return tempObj;
