@@ -217,6 +217,28 @@ export function findComponentsDownward (context, componentName) {
     }, []);
 }
 
+// Find components upward
+export function findComponentsUpward (context, componentName) {
+    let parents = [];
+    const parent = context.$parent;
+    if (parent) {
+        if (parent.$options.name === componentName) parents.push(parent);
+        return parents.concat(findComponentsUpward(parent, componentName));
+    } else {
+        return [];
+    }
+}
+
+// Find brothers components
+export function findBrothersComponents (context, componentName, exceptMe = true) {
+    let res = context.$parent.$children.filter(item => {
+        return item.$options.name === componentName;
+    });
+    let index = res.findIndex(item => item._uid === context._uid);
+    if (exceptMe) res.splice(index, 1);
+    return res;
+}
+
 /* istanbul ignore next */
 const trim = function(string) {
     return (string || '').replace(/^[\s\uFEFF]+|[\s\uFEFF]+$/g, '');
@@ -276,5 +298,27 @@ export function removeClass(el, cls) {
     }
     if (!el.classList) {
         el.className = trim(curClass);
+    }
+}
+
+export const dimensionMap = {
+    xs: '480px',
+    sm: '768px',
+    md: '992px',
+    lg: '1200px',
+    xl: '1600px',
+};
+
+export function setMatchMedia () {
+    if (typeof window !== 'undefined') {
+        const matchMediaPolyfill = mediaQuery => {
+            return {
+                media: mediaQuery,
+                matches: false,
+                on() {},
+                off() {},
+            };
+        };
+        window.matchMedia = window.matchMedia || matchMediaPolyfill;
     }
 }
