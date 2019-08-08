@@ -8048,10 +8048,10 @@ uuid@^3.0.1:
   version "3.3.2"
   resolved "http://registry.npm.taobao.org/uuid/download/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
 
-v-click-outside-x@^3.5.6:
+v-click-outside-x@^3.0.0:
   version "3.7.1"
-  resolved "https://registry.yarnpkg.com/v-click-outside-x/-/v-click-outside-x-3.7.1.tgz#aa03eaa0e41e44cb5207dcf86c2d9f0dd64084c1"
-  integrity sha512-WmUgmcIXr9clVpm1AYS/FgHtcDicfnfoxgQCNg4O6vfk9GVnxA0vSqO321ogUo0b7czYTidj7fQENvWFMWOkUg==
+  resolved "https://registry.npm.taobao.org/v-click-outside-x/download/v-click-outside-x-3.7.1.tgz#aa03eaa0e41e44cb5207dcf86c2d9f0dd64084c1"
+  integrity sha1-qgPqoOQeRMtSB9z4bC2fDdZAhME=
 
 v8flags@^2.0.2:
   version "2.0.11"

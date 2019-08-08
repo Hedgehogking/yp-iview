@@ -1,5 +1,5 @@
 <template>
-    <div :class="classes" v-clickoutside="handleClose">
+    <div :class="classes" v-click-outside="handleClose">
         <div :class="[prefixCls + '-rel']" @click="toggleOpen" ref="reference">
             <input type="hidden" :name="name" :value="currentValue">
             <slot>
@@ -20,7 +20,7 @@
                 <Icon type="arrow-down-b" :class="[prefixCls + '-arrow']"></Icon>
             </slot>
         </div>
-        <transition name="slide-up">
+        <transition name="transition-drop">
             <Drop
                 v-show="visible"
                 :class="{ [prefixCls + '-transfer']: transfer }"
@@ -37,17 +37,19 @@
                         :change-on-select="changeOnSelect"
                         :level="level"
                         :trigger="trigger"></Caspanel>
-                    <div :class="[prefixCls + '-dropdown']" v-show="filterable && query !== '' && querySelections.length">
-                        <ul :class="[selectPrefixCls + '-dropdown-list']">
-                            <li
-                                :class="[selectPrefixCls + '-item', {
-                                    [selectPrefixCls + '-item-disabled']: item.disabled
-                                }]"
-                                v-for="(item, index) in querySelections"
-                                @click="handleSelectItem(index)" v-html="item.display"></li>
-                        </ul>
-                    </div>
-                    <ul v-show="filterable && query !== '' && !querySelections.length" :class="[prefixCls + '-not-found-tip']"><li>{{ localeNotFoundText }}</li></ul>
+                    <template v-if="filterable">
+                        <div :class="[prefixCls + '-dropdown']" v-show="filterable && query !== '' && querySelections.length">
+                            <ul :class="[selectPrefixCls + '-dropdown-list']">
+                                <li
+                                    :class="[selectPrefixCls + '-item', {
+                                        [selectPrefixCls + '-item-disabled']: item.disabled
+                                    }]"
+                                    v-for="(item, index) in querySelections"
+                                    @click="handleSelectItem(index)" v-html="item.display"></li>
+                            </ul>
+                        </div>
+                        <ul v-show="filterable && query !== '' && !querySelections.length" :class="[prefixCls + '-not-found-tip']"><li>{{ localeNotFoundText }}</li></ul>
+                    </template>
                 </div>
             </Drop>
         </transition>
@@ -58,7 +60,7 @@
     import Drop from '../select/dropdown.vue';
     import Icon from '../icon/icon.vue';
     import Caspanel from './caspanel.vue';
-    import clickoutside from '../../directives/clickoutside';
+    import {directive as clickOutside} from 'v-click-outside-x';
     import TransferDom from '../../directives/transfer-dom';
     import { oneOf } from '../../utils/assist';
     import Emitter from '../../mixins/emitter';
@@ -71,7 +73,7 @@
         name: 'Cascader',
         mixins: [ Emitter, Locale ],
         components: { iInput, Drop, Icon, Caspanel },
-        directives: { clickoutside, TransferDom },
+        directives: { clickOutside, TransferDom },
         props: {
             data: {
                 type: Array,
@@ -221,7 +223,9 @@
                     }
                 }
                 getSelections(this.data);
-                selections = selections.filter(item => item.label.indexOf(this.query) > -1).map(item => {
+                selections = selections.filter(item => {
+                    return item.label ? item.label.indexOf(this.query) > -1 : false;
+                }).map(item => {
                     item.display = item.display.replace(new RegExp(this.query, 'g'), `<span>${this.query}</span>`);
                     return item;
                 });
@@ -258,8 +262,9 @@
             updateResult (result) {
                 this.tmpSelected = result;
             },
-            updateSelected (init = false) {
-                if (!this.changeOnSelect || init) {
+            updateSelected (init = false, changeOnSelectDataChange = false) {
+                // #2793 changeOnSelectDataChange used for changeOnSelect when data changed and set value
+                if (!this.changeOnSelect || init || changeOnSelectDataChange) {
                     this.broadcast('Caspanel', 'on-find-selected', {
                         value: this.currentValue
                     });
@@ -356,6 +361,7 @@
                     if (this.transfer) {
                         this.$refs.drop.update();
                     }
+                    this.broadcast('Drop', 'on-update-popper');
                 } else {
                     if (this.filterable) {
                         this.query = '';
@@ -364,6 +370,7 @@
                     if (this.transfer) {
                         this.$refs.drop.destroy();
                     }
+                    this.broadcast('Drop', 'on-destroy-popper');
                 }
                 this.$emit('on-visible-change', val);
             },
@@ -386,7 +393,7 @@
                     if (validDataStr !== this.validDataStr) {
                         this.validDataStr = validDataStr;
                         if (!this.isLoadedChildren) {
-                            this.$nextTick(() => this.updateSelected());
+                            this.$nextTick(() => this.updateSelected(false, this.changeOnSelect));
                         }
                         this.isLoadedChildren = false;
                     }
