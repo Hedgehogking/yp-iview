@@ -1,39 +1,33 @@
 <template>
-  <div @click="onHeaderClick">
-    <div class="ivu-tag ivu-tag-checked" v-for="item in selectedMultiple">
-      <span class="ivu-tag-text">{{ item.label }}</span>
-      <Icon type="ios-close" @click.native.stop="removeTag(item)"></Icon>
+    <div @click="onHeaderClick">
+        <div class="ivu-tag ivu-tag-checked" v-for="item in selectedMultiple">
+            <span class="ivu-tag-text">{{ item.label }}</span>
+            <Icon type="ios-close-empty" @click.native.stop="removeTag(item)"></Icon>
+        </div>
+        <span
+            :class="singleDisplayClasses"
+            v-show="singleDisplayValue"
+        >{{ singleDisplayValue }}</span>
+        <input
+            :id="inputElementId"
+            type="text"
+            v-if="filterable"
+            v-model="query"
+            :disabled="disabled"
+            :class="[prefixCls + '-input']"
+            :placeholder="showPlaceholder ? localePlaceholder : ''"
+            :style="inputStyle"
+            autocomplete="off"
+            spellcheck="false"
+            @keydown="resetInputState"
+            @keydown.delete="handleInputDelete"
+            @focus="onInputFocus"
+            @blur="onInputFocus"
+
+            ref="input">
+        <Icon type="ios-close" :class="[prefixCls + '-arrow']" v-if="resetSelect" @click.native.stop="onClear"></Icon>
+        <Icon type="arrow-down-b" :class="[prefixCls + '-arrow']" v-if="!resetSelect && !remote && !disabled"></Icon>
     </div>
-    <span :class="singleDisplayClasses" v-show="singleDisplayValue">{{ singleDisplayValue }}</span>
-    <input
-      :id="inputElementId"
-      type="text"
-      v-if="filterable"
-      v-model="query"
-      :disabled="disabled"
-      :class="[prefixCls + '-input']"
-      :placeholder="showPlaceholder ? localePlaceholder : ''"
-      :style="inputStyle"
-      autocomplete="off"
-      spellcheck="false"
-      @keydown="resetInputState"
-      @keydown.delete="handleInputDelete"
-      @focus="onInputFocus"
-      @blur="onInputBlur"
-      ref="input"
-    />
-    <Icon
-      type="ios-close"
-      :class="[prefixCls + '-arrow']"
-      v-if="resetSelect"
-      @click.native.stop="onClear"
-    ></Icon>
-    <Icon
-      type="arrow-down-b"
-      :class="[prefixCls + '-arrow']"
-      v-if="!resetSelect && !remote && !disabled"
-    ></Icon>
-  </div>
 </template>
 <script>
     import Icon from '../icon';
@@ -44,50 +38,50 @@
 
     export default {
         name: 'iSelectHead',
-        mixins: [Emitter, Locale],
+        mixins: [ Emitter, Locale ],
         components: { Icon },
         props: {
             disabled: {
                 type: Boolean,
-                default: false,
+                default: false
             },
             filterable: {
                 type: Boolean,
-                default: false,
+                default: false
             },
             multiple: {
                 type: Boolean,
-                default: false,
+                default: false
             },
             remote: {
                 type: Boolean,
-                default: false,
+                default: false
             },
             initialLabel: {
                 type: [String, Number, Array],
             },
             values: {
                 type: Array,
-                default: () => [],
+                default: () => []
             },
             clearable: {
                 type: [Function, Boolean],
                 default: false,
             },
             inputElementId: {
-                type: String,
+                type: String
             },
             placeholder: {
-                type: String,
+                type: String
             },
             queryProp: {
                 type: String,
-                default: '',
-            },
+                default: ''
+            }
         },
-        data() {
+        data () {
             return {
-                prefixCls,
+                prefixCls: prefixCls,
                 query: '',
                 inputLength: 20,
                 remoteInitialLabel: this.initialLabel,
@@ -95,34 +89,36 @@
             };
         },
         computed: {
-            singleDisplayClasses() {
-                const { filterable, multiple, showPlaceholder } = this;
+            singleDisplayClasses(){
+                const {filterable, multiple, showPlaceholder} = this;
                 return [{
-                    [`${prefixCls}-placeholder`]: showPlaceholder && !filterable,
-                    [`${prefixCls}-selected-value`]: !showPlaceholder && !multiple && !filterable,
+                    [prefixCls + '-placeholder']: showPlaceholder && !filterable,
+                    [prefixCls + '-selected-value']: !showPlaceholder && !multiple && !filterable,
                 }];
             },
-            singleDisplayValue() {
+            singleDisplayValue(){
                 if ((this.multiple && this.values.length > 0) || this.filterable) return '';
                 return `${this.selectedSingle}` || this.localePlaceholder;
             },
-            showPlaceholder() {
+            showPlaceholder () {
                 let status = false;
                 if (!this.multiple) {
                     const value = this.values[0];
-                    if (typeof value === 'undefined' || String(value).trim() === '') {
+                    if (typeof value === 'undefined' || String(value).trim() === ''){
                         status = !this.remoteInitialLabel;
                     }
-                } else if (!this.values.length > 0) {
-                    status = true;
+                } else {
+                    if (!this.values.length > 0) {
+                        status = true;
+                    }
                 }
                 return status;
             },
-            resetSelect() {
+            resetSelect(){
                 return !this.showPlaceholder && this.clearable;
             },
-            inputStyle() {
-                const style = {};
+            inputStyle () {
+                let style = {};
 
                 if (this.multiple) {
                     if (this.showPlaceholder) {
@@ -134,65 +130,61 @@
 
                 return style;
             },
-            localePlaceholder() {
+            localePlaceholder () {
                 if (this.placeholder === undefined) {
                     return this.t('i.select.placeholder');
+                } else {
+                    return this.placeholder;
                 }
-                return this.placeholder;
             },
-            selectedSingle() {
+            selectedSingle(){
                 const selected = this.values[0];
                 return selected ? selected.label : (this.remoteInitialLabel || '');
             },
-            selectedMultiple() {
+            selectedMultiple(){
                 return this.multiple ? this.values : [];
-            },
+            }
         },
         methods: {
-            onInputFocus() {
-                this.$emit('on-input-focus');
+            onInputFocus(e){
+                this.$emit(e.type === 'focus' ? 'on-input-focus' : 'on-input-blur');
             },
-            onInputBlur() {
-                if (!this.values.length) this.query = ''; // #5155
-                this.$emit('on-input-blur');
-            },
-            removeTag(value) {
+            removeTag (value) {
                 if (this.disabled) return false;
                 this.dispatch('iSelect', 'on-select-selected', value);
             },
-            resetInputState() {
+            resetInputState () {
                 this.inputLength = this.$refs.input.value.length * 12 + 20;
-                this.$emit('on-keydown');
             },
-            handleInputDelete() {
+            handleInputDelete () {
                 if (this.multiple && this.selectedMultiple.length && this.query === '') {
                     this.removeTag(this.selectedMultiple[this.selectedMultiple.length - 1]);
                 }
             },
-            onHeaderClick(e) {
-                if (this.filterable && e.target === this.$el) {
+            onHeaderClick(e){
+                if (this.filterable && e.target === this.$el){
                     this.$refs.input.focus();
                 }
             },
-            onClear() {
+            onClear(){
                 this.$emit('on-clear');
-            },
+            }
         },
         watch: {
-            values([value]) {
+            values ([value]) {
                 if (!this.filterable) return;
                 this.preventRemoteCall = true;
-                if (this.multiple) {
+                if (this.multiple){
                     this.query = '';
                     this.preventRemoteCall = false; // this should be after the query change setter above
                     return;
                 }
-          // #982
+                // #982
                 if (typeof value === 'undefined' || value === '' || value === null) this.query = '';
                 else this.query = value.label;
                 this.$nextTick(() => this.preventRemoteCall = false); // this should be after the query change setter above
             },
-            query(val) {
+            query (val) {
                 if (this.preventRemoteCall) {
                     this.preventRemoteCall = false;
                     return;
@@ -200,9 +192,9 @@
 
                 this.$emit('on-query-change', val);
             },
-            queryProp(query) {
+            queryProp(query){
                 if (query !== this.query) this.query = query;
             },
-        },
+        }
     };
 </script>
